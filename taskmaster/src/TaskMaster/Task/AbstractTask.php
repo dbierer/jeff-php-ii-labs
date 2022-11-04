@@ -1,42 +1,49 @@
 <?php
 namespace TaskMaster\Task;
+use TaskMaster\Objective\Objective;
+use Exception;
 
 /**
  * Class AbstractTask
  */
-abstract class AbstractTask {
+abstract class AbstractTask implements TaskInterface {
     public const TABLE = 'task';
 
-    public int    $id;
     public string $title;
-    public string $description;
+    public bool   $visibility;
     public array  $objectives = [];
-    public string $visibility = 'show';
-    public string $location = 'home';
-    public string $expiry = '1/1/1970';
-    public string $frequency = 'daily';
-    public int    $enjoyment = 5;
-    public int    $importance = 5;
 
+    /* AbstractTask Constructor */
     public function __construct(
-        int    $id,
         string $title,
-        string $description
+        bool $visibility = true
     ) {
-        $this->id = $id;
         $this->title = $title;
-        $this->description = $description;
+        $this->visibility = $visibility;
     }
 
-    public abstract function add_objective(string $description);
+    /* Magic Methods */
+    public function __set($key, $value) {
+        $message = 'Cannot access nonexistent or inaccessible properties.';
+        throw New Exception($message);
+    }
 
+    /* Required Interface Methods */
+    public function show() {
+        $this->visibility = true;
+    }
+
+    public function hide() {
+        $this->visibility = false;
+    }
+
+    /* Abstract Method Subclass Requirement */
     /**
-     * @return int
+     * @return void
      */
-    public function get_id() : int {
-        return $this->id;
-    }
+    public abstract function reset_defaults() : void;
 
+    /* Inheritable Methods */
     /**
      * @return string
      */
@@ -53,18 +60,13 @@ abstract class AbstractTask {
     }
 
     /**
-     * @return string
-     */
-    public function get_description() : string {
-        return $this->description;
-    }
-
-    /**
      * @param string $description
-     * @return void
+     * @return Objective
      */
-    public function set_description(string $description) : void {
-        $this->description = $description;
+    public function add_objective(string $description) : Objective {
+        $objective = New Objective($description);
+        $this->objectives[] = $objective;
+        return $objective;
     }
 
 }
